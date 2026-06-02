@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>MTD Dashboard Centered</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  min-height: 100vh;
+  background: #eceaf3;
+  font-family: 'Inter', system-ui, sans-serif;
+}
+.page-shell {
+  min-height: 100vh;
+  width: 100%;
+  padding: 16px;
+}
+
+.dashboard-frame {
+  width: min(1680px, 100%);
+  margin: 0 auto;
+}
+
+.dash {
+  width: 100%;
+  max-width: none;
+  margin: 0 auto;
+  color: #1f1d2b;
+  background: #f3f2f8;
+  padding: 28px 20px;
+  border-radius: 24px;
+  box-shadow: 0 10px 30px rgba(60,40,120,.08);
+}
+
+.dash-title { font-size: 20px; font-weight: 800; letter-spacing: -0.4px; color: #1f1d2b; margin-bottom: 20px; }
+.row-top { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin-bottom: 16px; }
+.row-bottom {}
+.widget {
+  background: #fff;
+  border: 1px solid #ecebf3;
+  border-radius: 18px;
+  padding: 20px 20px 16px;
+  box-shadow: 0 1px 2px rgba(40,30,80,.04), 0 10px 28px rgba(60,40,120,.05);
+  flex: none;
+}
+.w-head { display: flex; align-items: center; gap: 11px; margin-bottom: 16px; }
+.w-ico { width: 32px; height: 32px; border-radius: 9px; display: grid; place-items: center; flex: none; background: linear-gradient(135deg, #8b5cf6, #6d28d9); color: #fff; }
+.w-ico svg { width: 17px; height: 17px; }
+.w-titles { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.w-title-line { display: flex; align-items: baseline; gap: 6px; }
+.w-title { font-size: 16.5px; font-weight: 800; letter-spacing: -0.3px; }
+.w-mtd { font-size: 13px; color: #8c87a0; font-weight: 600; }
+.w-sub { font-size: 13px; color: #8c87a0; font-weight: 500; }
+.spacer { flex: 1; }
+.w-link { font-size: 13px; font-weight: 700; color: #7c4dff; text-decoration: none; }
+.w-link:hover { text-decoration: underline; }
+.loc-pills { display: flex; gap: 8px; margin-bottom: 14px; }
+.pill { padding: 5px 16px; border-radius: 999px; font-size: 12px; font-weight: 700; cursor: pointer; font-family: inherit; background: #faf9fe; color: #8c87a0; border: 1.5px solid #ecebf3; transition: all .15s; white-space: nowrap; }
+.pill.active { color: #1f1d2b; border-color: #4a4560; font-weight: 800; }
+.pill.inactive { opacity: 0.4; }
+.pill:not(.active):hover { opacity: 0.72; }
+.loc-widget { width: 100%; min-height: 524px; display: flex; flex-direction: column; }
+.loc-grid { display: grid; grid-template-columns: repeat(3, 1fr); grid-auto-rows: 1fr; gap: 10px; flex: 1 1 auto; }
+.metric { background: #fbfbfe; border: 1px solid #ecebf3; border-radius: 13px; padding: 12px; display: flex; flex-direction: column; align-items: flex-start; gap: 8px; }
+.m-ico { width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; flex: none; }
+.m-ico svg { width: 17px; height: 17px; }
+.m-ico.purple { background: #ede7fd; color: #7c4dff; }
+.m-ico.teal { background: #d6f4ef; color: #14b1a0; }
+.m-body { min-width: 0; width: 100%; }
+.m-lbl { font-size: 11px; color: #8c87a0; font-weight: 600; display: flex; align-items: center; gap: 4px; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.m-val { font-size: 18px; font-weight: 800; letter-spacing: -0.5px; line-height: 1.05; }
+.m-delta { font-size: 11px; font-weight: 700; color: #1aa45c; margin-top: 3px; white-space: nowrap; }
+.m-delta .vs { color: #8c87a0; font-weight: 600; }
+.w-foot { margin-top: 14px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: 12.5px; color: #8c87a0; font-weight: 600; }
+.w-foot b { color: #1f1d2b; }
+.info { position: relative; display: inline-grid; place-items: center; width: 13px; height: 13px; border-radius: 50%; border: 1.3px solid #c3bdd2; color: #a8a2bb; font-size: 9px; font-weight: 800; cursor: help; }
+.info:hover .tip { opacity: 1; visibility: visible; }
+.tip { position: absolute; bottom: 120%; left: 50%; transform: translateX(-50%); width: 200px; background: #1f1d2b; color: #fff; font-size: 11px; line-height: 1.45; font-weight: 500; padding: 10px 12px; border-radius: 10px; text-align: left; opacity: 0; visibility: hidden; transition: all .16s ease; z-index: 40; pointer-events: none; }
+.prac-widget { width: 100%; min-height: 524px; display: flex; flex-direction: column; }
+.prac-grid { display: grid; grid-template-columns: repeat(3, 1fr); grid-auto-rows: 1fr; gap: 10px; flex: 1 1 auto; }
+.prac { background: #fbfbfe; border: 1px solid #ecebf3; border-radius: 13px; padding: 12px; display: flex; flex-direction: column; gap: 9px; }
+.prac.empty { background: #fafafc; border-style: dashed; border-color: #e4e2ee; }
+.prac.empty .prac-name, .prac.empty .s-val { color: #b9b5c6; }
+.prac-av.empty-av { background: #f0eef6; color: #b9b5c6; }
+.prac-top { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; }
+.prac-av { width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; font-size: 11px; font-weight: 800; flex: none; letter-spacing: -0.3px; }
+.prac-av.purple { background: #ede7fd; color: #7c4dff; }
+.prac-av.teal { background: #d6f4ef; color: #14b1a0; }
+.prac-name { font-size: 11.5px; font-weight: 800; letter-spacing: -0.2px; line-height: 1.2; min-height: 28px; overflow-wrap: anywhere; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.prac-stats { display: flex; flex-direction: column; gap: 6px; border-top: 1px solid #ecebf3; padding-top: 8px; }
+.prac-stat { display: flex; flex-direction: column; gap: 1px; }
+.prac-stat .s-lbl { font-size: 9px; color: #8c87a0; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; }
+.prac-stat .s-val { font-size: 13px; font-weight: 800; letter-spacing: -0.3px; }
+.pager { margin-top: 14px; height: 28px; display: flex; align-items: center; justify-content: center; gap: 14px; }
+.pg-btn { width: 26px; height: 26px; border-radius: 8px; border: 1px solid #ecebf3; background: #fff; display: grid; place-items: center; cursor: pointer; color: #1f1d2b; transition: all .14s; }
+.pg-btn:hover:not(:disabled) { border-color: #7c4dff; color: #7c4dff; }
+.pg-btn:disabled { opacity: .35; cursor: not-allowed; }
+.pg-btn svg { width: 14px; height: 14px; }
+.pg-info { font-size: 12.5px; font-weight: 700; color: #8c87a0; min-width: 78px; text-align: center; }
+.ranking-widget { width: 100%; }
+.chart { position: relative; }
+.gridlines { position: absolute; top: 0; bottom: 26px; left: 192px; right: 0; z-index: 0; }
+.gridlines i { position: absolute; top: 0; bottom: 0; width: 1px; background: #ecebf3; }
+.rows { position: relative; z-index: 1; display: grid; grid-template-columns: 178px 1fr; column-gap: 14px; row-gap: 12px; }
+.r-label { display: flex; align-items: center; gap: 9px; min-width: 0; }
+.r-rank { width: 20px; height: 20px; border-radius: 50%; flex: none; display: grid; place-items: center; font-size: 10px; font-weight: 800; color: #fff; background: linear-gradient(135deg, #8b5cf6, #6d28d9); }
+.r-name { font-size: 12.5px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.r-track { display: flex; align-items: center; min-width: 0; }
+.bar { height: 15px; border-radius: 999px; background: linear-gradient(90deg, #6d28d9, #a98bf0); flex: none; min-width: 4px; }
+.bar-val { font-size: 12.5px; font-weight: 800; letter-spacing: -0.3px; margin-left: 9px; white-space: nowrap; }
+.axis { position: relative; z-index: 1; margin-top: 10px; margin-left: calc(178px + 14px); display: flex; justify-content: space-between; }
+.axis span { font-size: 11px; font-weight: 600; color: #8c87a0; }
+@media (max-width: 1100px) {
+  .row-top { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 768px) {
+  .page-shell { padding: 12px; }
+  .dash { padding: 18px 14px; border-radius: 18px; }
+  .loc-grid, .prac-grid { grid-template-columns: repeat(2, 1fr); }
+  .rows { grid-template-columns: 1fr; row-gap: 8px; }
+  .gridlines, .axis { display: none; }
+}
+</style>
+</head>
+<body>
+<div class="page-shell">
+  <div class="dashboard-frame">
+    <div class="dash">
+    <div class="dash-title">Performance Dashboard</div>
+    <div class="row-top">
+      <section class="widget loc-widget">
+        <div class="w-head">
+          <span class="w-ico">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg>
+          </span>
+          <div class="w-titles">
+            <div class="w-title-line"><span class="w-title">Locations</span><span class="w-mtd">(MTD)</span></div>
+            <div class="w-sub">Performance analytics by location</div>
+          </div>
+        </div>
+        <div class="loc-pills" id="loc-pills">
+          <button class="pill active" onclick="setMetricLoc('jefferson', this)">Jefferson City</button>
+          <button class="pill inactive" onclick="setMetricLoc('lake', this)">Lake Ozark</button>
+        </div>
+        <div class="loc-grid" id="loc-grid"></div>
+        <div class="w-foot">Total appointments: <b id="loc-total"></b></div>
+      </section>
+
+      <section class="widget prac-widget">
+        <div class="w-head">
+          <span class="w-ico">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          </span>
+          <div class="w-titles">
+            <div class="w-title-line"><span class="w-title">Practitioners</span><span class="w-mtd">(MTD)</span></div>
+            <div class="w-sub">Performance analytics by practitioner</div>
+          </div>
+          <span class="spacer"></span>
+          <a class="w-link" href="#" onclick="return false">View all</a>
+        </div>
+        <div class="loc-pills" id="prac-pills">
+          <button class="pill active" id="pill-jefferson" onclick="setPracLoc('jefferson', this)">Jefferson City</button>
+          <button class="pill inactive" id="pill-lake" onclick="setPracLoc('lake', this)">Lake Ozark</button>
+        </div>
+        <div class="prac-grid" id="prac-grid"></div>
+        <div class="pager">
+          <button class="pg-btn" id="pg-prev" onclick="pracPage(-1)" disabled>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+          </button>
+          <span class="pg-info" id="pg-info"></span>
+          <button class="pg-btn" id="pg-next" onclick="pracPage(1)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+          </button>
+        </div>
+      </section>
+    </div>
+
+    <div class="row-bottom">
+      <section class="widget ranking-widget">
+        <div class="w-head">
+          <span class="w-ico">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20V10"/><path d="M18 20V4"/><path d="M6 20v-4"/></svg>
+          </span>
+          <div class="w-titles">
+            <div class="w-title-line"><span class="w-title">MTD Revenue Ranking</span></div>
+            <div class="w-sub">Revenue by practitioner</div>
+          </div>
+        </div>
+        <div class="chart">
+          <div class="gridlines" id="gridlines"></div>
+          <div class="rows" id="rank-rows"></div>
+          <div class="axis" id="rank-axis"></div>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
+
+<script>
+const locationMetrics = {
+  jefferson: [
+    { icon: 'purple', label: 'Revenue', value: '$148,420', delta: '+12.4%', total: false },
+    { icon: 'teal', label: 'Appointments', value: '312', delta: '+8.1%', total: true },
+    { icon: 'purple', label: 'New Clients', value: '47', delta: '+5.6%', total: false },
+    { icon: 'teal', label: 'Avg Ticket', value: '$476', delta: '+3.2%', total: false },
+    { icon: 'purple', label: 'Retail Sales', value: '$18,940', delta: '+9.8%', total: false },
+    { icon: 'teal', label: 'Retention', value: '82%', delta: '+1.7%', total: false }
+  ],
+  lake: [
+    { icon: 'purple', label: 'Revenue', value: '$121,870', delta: '+9.7%', total: false },
+    { icon: 'teal', label: 'Appointments', value: '264', delta: '+6.3%', total: true },
+    { icon: 'purple', label: 'New Clients', value: '38', delta: '+4.2%', total: false },
+    { icon: 'teal', label: 'Avg Ticket', value: '$462', delta: '+2.4%', total: false },
+    { icon: 'purple', label: 'Retail Sales', value: '$15,210', delta: '+7.1%', total: false },
+    { icon: 'teal', label: 'Retention', value: '79%', delta: '+1.2%', total: false }
+  ]
+};
+
+const practitioners = {
+  jefferson: [
+    { name: 'Ava Martin', initials: 'AM', color: 'purple', revenue: '$28,460', appts: '58' },
+    { name: 'Noah Reed', initials: 'NR', color: 'teal', revenue: '$25,980', appts: '52' },
+    { name: 'Ella Brooks', initials: 'EB', color: 'purple', revenue: '$23,740', appts: '47' },
+    { name: 'Liam Carter', initials: 'LC', color: 'teal', revenue: '$21,430', appts: '45' },
+    { name: 'Mia Foster', initials: 'MF', color: 'purple', revenue: '$19,260', appts: '39' },
+    { name: 'Jack Turner', initials: 'JT', color: 'teal', revenue: '$16,880', appts: '35' },
+    { name: 'Olivia Hayes', initials: 'OH', color: 'purple', revenue: '$12,670', appts: '28' }
+  ],
+  lake: [
+    { name: 'Sophia Lane', initials: 'SL', color: 'purple', revenue: '$24,390', appts: '50' },
+    { name: 'Ethan Cole', initials: 'EC', color: 'teal', revenue: '$22,410', appts: '46' },
+    { name: 'Chloe Banks', initials: 'CB', color: 'purple', revenue: '$20,580', appts: '42' },
+    { name: 'Mason Price', initials: 'MP', color: 'teal', revenue: '$18,340', appts: '38' },
+    { name: 'Grace Perry', initials: 'GP', color: 'purple', revenue: '$17,120', appts: '34' }
+  ]
+};
+
+const rankingData = [
+  { name: 'Ava Martin', revenue: 28460 },
+  { name: 'Noah Reed', revenue: 25980 },
+  { name: 'Sophia Lane', revenue: 24390 },
+  { name: 'Ella Brooks', revenue: 23740 },
+  { name: 'Ethan Cole', revenue: 22410 },
+  { name: 'Liam Carter', revenue: 21430 },
+  { name: 'Chloe Banks', revenue: 20580 },
+  { name: 'Mia Foster', revenue: 19260 }
+];
+
+let currentMetricLoc = 'jefferson';
+let currentPracLoc = 'jefferson';
+let currentPracPage = 0;
+const perPage = 6;
+
+function metricIcon(color) {
+  return `<span class="m-ico ${color}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20V10"/><path d="M18 20V4"/><path d="M6 20v-4"/></svg></span>`;
+}
+
+function renderMetrics(loc) {
+  const grid = document.getElementById('loc-grid');
+  const total = document.getElementById('loc-total');
+  grid.innerHTML = locationMetrics[loc].map(item => `
+    <div class="metric">
+      ${metricIcon(item.icon)}
+      <div class="m-body">
+        <div class="m-lbl">${item.label}</div>
+        <div class="m-val">${item.value}</div>
+        <div class="m-delta">${item.delta} <span class="vs">vs last month</span></div>
+      </div>
+    </div>
+  `).join('');
+  total.textContent = locationMetrics[loc].find(x => x.total).value;
+}
+
+function setMetricLoc(loc, el) {
+  currentMetricLoc = loc;
+  document.querySelectorAll('#loc-pills .pill').forEach(btn => btn.classList.remove('active'));
+  document.querySelectorAll('#loc-pills .pill').forEach(btn => btn.classList.add('inactive'));
+  el.classList.add('active');
+  el.classList.remove('inactive');
+  renderMetrics(loc);
+}
+
+function renderPractitioners() {
+  const list = practitioners[currentPracLoc];
+  const start = currentPracPage * perPage;
+  const items = list.slice(start, start + perPage);
+  const grid = document.getElementById('prac-grid');
+  grid.innerHTML = items.map(p => `
+    <div class="prac">
+      <div class="prac-top">
+        <div class="prac-av ${p.color}">${p.initials}</div>
+        <div class="prac-name">${p.name}</div>
+      </div>
+      <div class="prac-stats">
+        <div class="prac-stat"><span class="s-lbl">Revenue</span><span class="s-val">${p.revenue}</span></div>
+        <div class="prac-stat"><span class="s-lbl">Appointments</span><span class="s-val">${p.appts}</span></div>
+      </div>
+    </div>
+  `).join('');
+
+  while (items.length < perPage) {
+    grid.innerHTML += `
+      <div class="prac empty">
+        <div class="prac-top">
+          <div class="prac-av empty-av">--</div>
+          <div class="prac-name">No practitioner</div>
+        </div>
+        <div class="prac-stats">
+          <div class="prac-stat"><span class="s-lbl">Revenue</span><span class="s-val">--</span></div>
+          <div class="prac-stat"><span class="s-lbl">Appointments</span><span class="s-val">--</span></div>
+        </div>
+      </div>
+    `;
+    items.push({});
+  }
+
+  const totalPages = Math.ceil(list.length / perPage);
+  document.getElementById('pg-info').textContent = `${currentPracPage + 1} / ${totalPages}`;
+  document.getElementById('pg-prev').disabled = currentPracPage === 0;
+  document.getElementById('pg-next').disabled = currentPracPage >= totalPages - 1;
+}
+
+function setPracLoc(loc, el) {
+  currentPracLoc = loc;
+  currentPracPage = 0;
+  document.querySelectorAll('#prac-pills .pill').forEach(btn => btn.classList.remove('active'));
+  document.querySelectorAll('#prac-pills .pill').forEach(btn => btn.classList.add('inactive'));
+  el.classList.add('active');
+  el.classList.remove('inactive');
+  renderPractitioners();
+}
+
+function pracPage(direction) {
+  const totalPages = Math.ceil(practitioners[currentPracLoc].length / perPage);
+  currentPracPage = Math.max(0, Math.min(totalPages - 1, currentPracPage + direction));
+  renderPractitioners();
+}
+
+function renderRanking() {
+  const max = Math.max(...rankingData.map(r => r.revenue));
+  const rows = document.getElementById('rank-rows');
+  const axis = document.getElementById('rank-axis');
+  const grid = document.getElementById('gridlines');
+  const steps = 4;
+
+  rows.innerHTML = rankingData.map((r, i) => `
+    <div class="r-label">
+      <span class="r-rank">${i + 1}</span>
+      <span class="r-name">${r.name}</span>
+    </div>
+    <div class="r-track">
+      <div class="bar" style="width:${(r.revenue / max) * 100}%"></div>
+      <span class="bar-val">$${r.revenue.toLocaleString()}</span>
+    </div>
+  `).join('');
+
+  axis.innerHTML = Array.from({ length: steps + 1 }, (_, i) => {
+    const val = Math.round((max / steps) * i);
+    return `<span>$${val.toLocaleString()}</span>`;
+  }).join('');
+
+  grid.innerHTML = Array.from({ length: steps + 1 }, (_, i) => `<i style="left:${(i / steps) * 100}%"></i>`).join('');
+}
+
+renderMetrics(currentMetricLoc);
+renderPractitioners();
+renderRanking();
+</script>
+</body>
+</html>
