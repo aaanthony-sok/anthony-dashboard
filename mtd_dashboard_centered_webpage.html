@@ -56,7 +56,7 @@ body {
 .w-link { font-size: 13px; font-weight: 700; color: #7c4dff; text-decoration: none; }
 .w-link:hover { text-decoration: underline; }
 .loc-pills { display: flex; gap: 8px; margin-bottom: 14px; }
-.pill { padding: 5px 16px; border-radius: 999px; font-size: 12px; font-weight: 700; cursor: pointer; font-family: inherit; background: #faf9fe; color: #8c87a0; border: 1.5px solid #ecebf3; transition: all .15s; white-space: nowrap; }
+.pill { padding: 5px 16px; border-radius: 999px; font-size: 12px; font-weight: 700; cursor: pointer; font-family: inherit; background: #faf9fe; color: #8c87a0; border: 1.5px solid #ecebf3; transition: all .14s; }
 .pill.active { color: #1f1d2b; border-color: #4a4560; font-weight: 800; }
 .pill.inactive { opacity: 0.4; }
 .pill:not(.active):hover { opacity: 0.72; }
@@ -76,7 +76,7 @@ body {
 .w-foot b { color: #1f1d2b; }
 .info { position: relative; display: inline-grid; place-items: center; width: 13px; height: 13px; border-radius: 50%; border: 1.3px solid #c3bdd2; color: #a8a2bb; font-size: 9px; font-weight: 800; cursor: help; }
 .info:hover .tip { opacity: 1; visibility: visible; }
-.tip { position: absolute; bottom: 120%; left: 50%; transform: translateX(-50%); width: 200px; background: #1f1d2b; color: #fff; font-size: 11px; line-height: 1.45; font-weight: 500; padding: 10px 12px; border-radius: 10px; text-align: left; opacity: 0; visibility: hidden; transition: all .16s ease; z-index: 40; pointer-events: none; }
+.tip { position: absolute; bottom: 120%; left: 50%; transform: translateX(-50%); width: 200px; background: #1f1d2b; color: #fff; font-size: 11px; line-height: 1.45; font-weight: 500; padding: 10px 14px; border-radius: 8px; border-bottom: 1px solid #2a2838; opacity: 0; visibility: hidden; transition: all .2s; white-space: normal; pointer-events: none; z-index: 10; }
 .prac-widget { width: 100%; min-height: 524px; display: flex; flex-direction: column; }
 .prac-grid { display: grid; grid-template-columns: repeat(3, 1fr); grid-auto-rows: 1fr; gap: 10px; flex: 1 1 auto; }
 .prac { background: #fbfbfe; border: 1px solid #ecebf3; border-radius: 13px; padding: 12px; display: flex; flex-direction: column; gap: 9px; }
@@ -87,7 +87,7 @@ body {
 .prac-av { width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; font-size: 11px; font-weight: 800; flex: none; letter-spacing: -0.3px; }
 .prac-av.purple { background: #ede7fd; color: #7c4dff; }
 .prac-av.teal { background: #d6f4ef; color: #14b1a0; }
-.prac-name { font-size: 11.5px; font-weight: 800; letter-spacing: -0.2px; line-height: 1.2; min-height: 28px; overflow-wrap: anywhere; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.prac-name { font-size: 11.5px; font-weight: 800; letter-spacing: -0.2px; line-height: 1.2; min-height: 28px; overflow-wrap: anywhere; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
 .prac-stats { display: flex; flex-direction: column; gap: 6px; border-top: 1px solid #ecebf3; padding-top: 8px; }
 .prac-stat { display: flex; flex-direction: column; gap: 1px; }
 .prac-stat .s-lbl { font-size: 9px; color: #8c87a0; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; }
@@ -151,7 +151,7 @@ body {
       <section class="widget prac-widget">
         <div class="w-head">
           <span class="w-ico">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="5" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
           </span>
           <div class="w-titles">
             <div class="w-title-line"><span class="w-title">Practitioners</span><span class="w-mtd">(MTD)</span></div>
@@ -340,10 +340,15 @@ function pracPage(direction) {
 
 function renderRanking() {
   const max = Math.max(...rankingData.map(r => r.revenue));
+  
+  // Round max up to nearest $10,000
+  const scaledMax = Math.ceil(max / 10000) * 10000;
+  const increment = 10000;
+  const numSteps = scaledMax / increment;
+  
   const rows = document.getElementById('rank-rows');
   const axis = document.getElementById('rank-axis');
   const grid = document.getElementById('gridlines');
-  const steps = 4;
 
   rows.innerHTML = rankingData.map((r, i) => `
     <div class="r-label">
@@ -351,17 +356,17 @@ function renderRanking() {
       <span class="r-name">${r.name}</span>
     </div>
     <div class="r-track">
-      <div class="bar" style="width:${(r.revenue / max) * 100}%"></div>
+      <div class="bar" style="width:${(r.revenue / scaledMax) * 100}%"></div>
       <span class="bar-val">$${r.revenue.toLocaleString()}</span>
     </div>
   `).join('');
 
-  axis.innerHTML = Array.from({ length: steps + 1 }, (_, i) => {
-    const val = Math.round((max / steps) * i);
+  axis.innerHTML = Array.from({ length: numSteps + 1 }, (_, i) => {
+    const val = increment * i;
     return `<span>$${val.toLocaleString()}</span>`;
   }).join('');
 
-  grid.innerHTML = Array.from({ length: steps + 1 }, (_, i) => `<i style="left:${(i / steps) * 100}%"></i>`).join('');
+  grid.innerHTML = Array.from({ length: numSteps + 1 }, (_, i) => `<i style="left:${(i / numSteps) * 100}%"></i>`).join('');
 }
 
 renderMetrics(currentMetricLoc);
